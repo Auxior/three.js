@@ -32,7 +32,7 @@
       <div class="lesson">
         <div class="lesson-main">
           <p>这篇文章是此篇 <a href="textures.html">关于纹理</a> 文章的延续，如果你还没有读过，你或许应当从那篇开始。</p>
-          <p>在<a href="textures.html">上一篇讲解纹理的文章中</a>，我们主要使用图像文件来生成动态纹理，有时候我们想在运行时生成一个纹理。一种可行的方式是使用 <a href="/docs/#api/en/textures/CanvasTexture"><code class="notranslate" translate="no">CanvasTexture</code></a>。</p>
+          <p>在<a href="textures.html">上一篇讲解纹理的文章中</a>，我们主要使用图像文件来生成动态纹理，有时候我们想在运行时生成一个纹理。一种可行的方式是使用 <a href="/docs/#api/zh/textures/CanvasTexture"><code class="notranslate" translate="no">CanvasTexture</code></a>。</p>
           <p>Canvas纹理 使用一个<code class="notranslate" translate="no">&lt;canvas&gt;</code> 作为它的输入， 如果你还不知道如何使用2D Canvas API来在画布上绘制内容，<a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial">MDN上有一篇很好的文章</a>。</p>
           <p>我们来写一段简单的Canvas代码，这是一个在随机位置上绘制随机颜色的点的程序。</p>
 
@@ -75,7 +75,7 @@ requestAnimationFrame(render);</pre>
 
           <p></p>
           <p>现在让我们用它来绘制纹理。我们会用从 <a href="textures.html">上一篇文章</a> 中绘制立方体纹理的例子开始。
-             我们将删除加载图像的代码，取而代之的是使用我们的Canvas，通过创建一个<a href="/docs/#api/en/textures/CanvasTexture"><code class="notranslate" translate="no">CanvasTexture</code></a>，然后把我们创建好的Canvas对象传入。</p>
+             我们将删除加载图像的代码，取而代之的是使用我们的Canvas，通过创建一个<a href="/docs/#api/zh/textures/CanvasTexture"><code class="notranslate" translate="no">CanvasTexture</code></a>，然后把我们创建好的Canvas对象传入。</p>
           <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const cubes = [];  // 我们使用这个数组来旋转这些立方体
 -const loader = new THREE.TextureLoader();
 -
@@ -117,7 +117,7 @@ cubes.push(cube);  // 添加到cube list中方便旋转</pre>
 
   requestAnimationFrame(render);
 }</pre>
-          <p>我们只需要做额外的一件事，设置了 <a href="/docs/#api/en/textures/CanvasTexture"><code class="notranslate" translate="no">CanvasTexture</code></a> 的 <code class="notranslate" translate="no">needsUpdate</code>属性来告诉THREE.js来更新纹理画布的最新内容。</p>
+          <p>我们只需要做额外的一件事，设置了 <a href="/docs/#api/zh/textures/CanvasTexture"><code class="notranslate" translate="no">CanvasTexture</code></a> 的 <code class="notranslate" translate="no">needsUpdate</code>属性来告诉THREE.js来更新纹理画布的最新内容。</p>
           <p>这样，我们就有了一个用Canvas绘制纹理的立方体。</p>
           <p></p><div translate="no" class="threejs_example_container notranslate">
             <div><iframe class="threejs_example notranslate" translate="no" style=" " src="/manual/examples/resources/editor.html?url=/manual/examples/canvas-textured-cube.html"></iframe></div>
@@ -224,7 +224,7 @@ cubes.push(cube);  // 添加到cube list中方便旋转</pre>
 +  scene.add(root);
 +  return root;
 +}</pre>
-          <p>在上面你可以看到，我们把身体、头部、标签放在了一个根<a href="/docs/#api/en/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a> 上并且调整了他们的位置。这样如果我们想移动人的话直接移动根对象就可以了。身体是2个单位的高度，如果1个单位等于1米，那么上面的代码会尝试用厘米为单位制作标签，它们使用厘米作为宽高，以更好的适合文本。</p>
+          <p>在上面你可以看到，我们把身体、头部、标签放在了一个根<a href="/docs/#api/zh/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a> 上并且调整了他们的位置。这样如果我们想移动人的话直接移动根对象就可以了。身体是2个单位的高度，如果1个单位等于1米，那么上面的代码会尝试用厘米为单位制作标签，它们使用厘米作为宽高，以更好的适合文本。</p>
           <p>然后我们可以制作带标签的人</p>
           <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+makePerson(-3, 32, 'Purple People Eater', 'purple');
 +makePerson(-0, 32, 'Green Machine', 'green');

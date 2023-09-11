@@ -95,8 +95,8 @@ const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 +addLight(-1, 2, 4);
 +addLight( 1, -1, -2);
 </pre>
-			<p>让立方体变得透明，我们只需要设置<a href="/docs/#api/en/materials/Material#transparent"><code class="notranslate" translate="no">transparent</code></a>和
-				<a href="/docs/#api/en/materials/Material#opacity"><code class="notranslate" translate="no">opacity</code></a>。opacity为1，物体完全不透明，opacity为0，物体将完全透明。</p>
+			<p>让立方体变得透明，我们只需要设置<a href="/docs/#api/zh/materials/Material#transparent"><code class="notranslate" translate="no">transparent</code></a>和
+				<a href="/docs/#api/zh/materials/Material#opacity"><code class="notranslate" translate="no">opacity</code></a>。opacity为1，物体完全不透明，opacity为0，物体将完全透明。</p>
 			<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function makeInstance(geometry, color, x, y, z) {
 -  const material = new THREE.MeshPhongMaterial({color});
 +  const material = new THREE.MeshPhongMaterial({
@@ -125,7 +125,7 @@ const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 			<div class="threejs_center"><img src="../resources/images/transparency-cubes-no-backs.png" style="width: 416px;"></div>
 			<div class="threejs_center">没有后面的面</div>
 
-			<p>我们在<a href="materials.html">材质文章</a>中学习了<a href="/docs/#api/en/materials/Material#side"><code class="notranslate" translate="no">side</code></a>材质属性。
+			<p>我们在<a href="materials.html">材质文章</a>中学习了<a href="/docs/#api/zh/materials/Material#side"><code class="notranslate" translate="no">side</code></a>材质属性。
 				那么，让我们将side属性设置为<code class="notranslate" translate="no">THREE.DoubleSide</code>来让每个立方体的所有面都被绘制。</p>
 			<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const material = new THREE.MeshPhongMaterial({
   color,
@@ -150,7 +150,7 @@ const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 				当三角形的一个像素在被绘制的时候，会记录两件事情。一是像素的颜色，二是像素的深度。当下一个三角形被绘制的时候，对于深度大于先前被记录的深度的像素，将不会被绘制。</p>
 			<p>这种方式，对于不透明的物体工作得很好。不过，对于透明的物体不能正常工作。</p>
 			<p>这个问题的解决方案是将透明的物体进行排序，排在后面的物体比排在前面的物体先绘制。
-				THREE.js对于物体，比如<a href="/docs/#api/en/objects/Mesh"><code class="notranslate" translate="no">Mesh</code></a>就是这样做的，
+				THREE.js对于物体，比如<a href="/docs/#api/zh/objects/Mesh"><code class="notranslate" translate="no">Mesh</code></a>就是这样做的，
 			否则上面第一个关于立方体的例子将会失败，因为一些立方体遮挡住了其它的立方体。不幸的是，为一个个的三角形进行排序将会十分的慢。</p>
 			<p>每个立方体有12个三角形，每个面有2个。三角形绘制的顺序和在<a href="custom-buffergeometry.html">几何体中构建的顺序</a>是一致的，
 				取决于我们从哪个方向看向这些三角形，距离摄像机近一些的先被绘制。因此，在后面的那些三角形不会被绘制。这就是我们看不到后面的面的原因。</p>
@@ -246,10 +246,10 @@ makeInstance(geometry, 'lightblue',  Math.PI * 0.5, 'resources/images/hmmmface.p
   });
 }
 </pre>
-			<p>你如何完成取决于你。如果我在使用的是<a href="https://blender.org">Blender</a>这样的模型包，我可能会手动的调整纹理的坐标。这里我们使用的是<a href="/docs/#api/en/geometries/PlaneGeometry"><code class="notranslate" translate="no">PlaneGeometry</code></a>，默认情况下会将纹理拉伸到整个平面。像我们<a href="textures.html">前面讲到过的</a>，
-				通过设置 <a href="/docs/#api/en/textures/Texture#repeat"><code class="notranslate" translate="no">texture.repeat</code></a>和<a href="/docs/#api/en/textures/Texture#offset"><code class="notranslate" translate="no">texture.offset</code></a>，我们可以放缩和移动纹理，在每个平面上得到正确的一半脸的纹理。</p>
-			<p>上面的代码生成了一个<a href="/docs/#api/en/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a>对象，并且设置为2个平面的parent。旋转一个父级
-				<a href="/docs/#api/en/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a> 所需要的数学要比没有它时简单一些。 </p>
+			<p>你如何完成取决于你。如果我在使用的是<a href="https://blender.org">Blender</a>这样的模型包，我可能会手动的调整纹理的坐标。这里我们使用的是<a href="/docs/#api/zh/geometries/PlaneGeometry"><code class="notranslate" translate="no">PlaneGeometry</code></a>，默认情况下会将纹理拉伸到整个平面。像我们<a href="textures.html">前面讲到过的</a>，
+				通过设置 <a href="/docs/#api/zh/textures/Texture#repeat"><code class="notranslate" translate="no">texture.repeat</code></a>和<a href="/docs/#api/zh/textures/Texture#offset"><code class="notranslate" translate="no">texture.offset</code></a>，我们可以放缩和移动纹理，在每个平面上得到正确的一半脸的纹理。</p>
+			<p>上面的代码生成了一个<a href="/docs/#api/zh/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a>对象，并且设置为2个平面的parent。旋转一个父级
+				<a href="/docs/#api/zh/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a> 所需要的数学要比没有它时简单一些。 </p>
 			<p></p><div translate="no" class="threejs_example_container notranslate">
 			<div><iframe class="threejs_example notranslate" translate="no" style=" " src="/manual/examples/resources/editor.html?url=/manual/examples/transparency-intersecting-planes-fixed.html"></iframe></div>
 			<a class="threejs_center" href="/manual/examples/transparency-intersecting-planes-fixed.html" target="_blank">点击此处在独立窗口中打开</a>
@@ -266,7 +266,7 @@ makeInstance(geometry, 'lightblue',  Math.PI * 0.5, 'resources/images/hmmmface.p
 				<div><img class="checkerboard" src="../examples/resources/images/tree-02.png"></div>
 			</div>
 
-			<p>回到那两个相交的平面（我们分割之前），让我们使用纹理并且设置<a href="/docs/#api/en/materials/Material#alphaTest"><code class="notranslate" translate="no">alphaTest</code></a>。</p>
+			<p>回到那两个相交的平面（我们分割之前），让我们使用纹理并且设置<a href="/docs/#api/zh/materials/Material#alphaTest"><code class="notranslate" translate="no">alphaTest</code></a>。</p>
 			<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function makeInstance(geometry, color, rotY, url) {
   const texture = loader.load(url, render);
   const material = new THREE.MeshPhongMaterial({

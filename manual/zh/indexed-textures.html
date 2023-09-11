@@ -308,7 +308,7 @@ void main() {
         <p><code class="notranslate" translate="no">diffuseColor</code>
           在这个时刻应该已经是从我们轮廓纹理中获取的颜色了，所以我们应该可以从调色盘中获取颜色，然后把他们和最终颜色混合。</p>
         <p>就像我们 <a href="optimize-lots-of-objects-animated.html">之前做的那样</a> ，
-          在<a href="/docs/#api/en/materials/Material.onBeforeCompile"><code class="notranslate"
+          在<a href="/docs/#api/zh/materials/Material.onBeforeCompile"><code class="notranslate"
               translate="no">Material.onBeforeCompile</code></a>我们使用一个用来搜索和替换着色器代码的数组。
         </p>
         <pre class="prettyprint showlinemods notranslate lang-js" translate="no">{
@@ -380,7 +380,7 @@ const paletteTexture = new THREE.DataTexture(
 paletteTexture.minFilter = THREE.NearestFilter;
 paletteTexture.magFilter = THREE.NearestFilter;
 </pre>
-        <p>一个<a href="/docs/#api/en/textures/DataTexture"><code class="notranslate"
+        <p>一个<a href="/docs/#api/zh/textures/DataTexture"><code class="notranslate"
               translate="no">DataTexture</code></a> 提供原始的纹理数据。在这种情况下，我们给他512个RGBA颜色，每个颜色4字节，每个包含0-255的红、绿、蓝分量。</p>
         <p>让我们用随机颜色填充它，只是为了看看它是否有效</p>
         <pre class="prettyprint showlinemods notranslate lang-js" translate="no">for (let i = 1; i &lt; palette.length; ++i) {
