@@ -237,18 +237,18 @@ requestAnimationFrame(render);
 				<p>呃~，看起来很不幸，这场景没有设计汽车动画，因为他们当初不是用于此目的的。这卡车在错误的方向旋转。</p>
 				<p>这引出一个很重要的点，当你把东西做成3D时，你需要预先计划并设计你的资源（assets），让它们拥有能正确使用的初始功能。所以它们应该有正确的比例...</p>
 				<p>因为我不是艺术家，我不懂blender，我只能hack这个例子。我们将把每辆车，和它们的父节点，放到另一个
-					<a href="/docs/#api/zh/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a>.
-					我们将移动这些 <a href="/docs/#api/zh/core/Object3D"><code class="notranslate" translate="no"> Object3D</code></a>
-					的对象去移动车，但是我们可以设置汽车的原始<a href="/docs/#api/zh/core/Object3D"><code class="notranslate"
+					<a href="/docs/#api/en/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a>.
+					我们将移动这些 <a href="/docs/#api/en/core/Object3D"><code class="notranslate" translate="no"> Object3D</code></a>
+					的对象去移动车，但是我们可以设置汽车的原始<a href="/docs/#api/en/core/Object3D"><code class="notranslate"
 							translate="no">Object3D</code></a>
 					重新定位它，所以它是关于我们真正需要的地方。
 				</p>
 				<p>回顾下场景图（scene graph）看起来只有三种车，Car_08", "CAR_03", and "Car_04"。每种汽车都会使用相同的调整。</p>
 				<p>我给每个汽车都写了代码，将它们的父节点换成新的
-					<a href="/docs/#api/zh/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a>, 将新
-					<a href="/docs/#api/zh/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a> 添加到场景,
+					<a href="/docs/#api/en/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a>, 将新
+					<a href="/docs/#api/en/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a> 添加到场景,
 					应用于每种 <em>类型</em>的车的设置，修正它的朝向。 增加新的
-					<a href="/docs/#api/zh/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a> a
+					<a href="/docs/#api/en/core/Object3D"><code class="notranslate" translate="no">Object3D</code></a> a
 					<code class="notranslate" translate="no">cars</code> array.
 				</p>
 				<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-let cars;
@@ -325,14 +325,14 @@ gltfLoader.load('resources/models/cartoon_lowpoly_small_city_free_pack/scene.glt
 [1.004861, 5.115846, -3.641834],
 ];
 </pre>
-				<p>THREE.js有几个曲线（curve）的类。 <a href="/docs/#api/zh/extras/curves/CatmullRomCurve3"><code class="notranslate"
+				<p>THREE.js有几个曲线（curve）的类。 <a href="/docs/#api/en/extras/curves/CatmullRomCurve3"><code class="notranslate"
 							translate="no">CatmullRomCurve3</code></a> 那种曲线的事情是尝试通过这些点进行平滑的曲线</p>
 				<p>事实上直接提供这些点会生成这样的曲线</p>
 				<div class="threejs_center"><img src="../resources/images/car-curves-before.png" style="width: 400px"></div>
 
 				<p>但是，我想要更尖锐的转角。如果我们计算了一些额外的点，我们可以得到我们想要的东西。
 					每两对点之间,我们需要在两点之间的10%处和90%处计算额外的两个点，并将它们传递给
-					<a href="/docs/#api/zh/extras/curves/CatmullRomCurve3"><code class="notranslate"
+					<a href="/docs/#api/en/extras/curves/CatmullRomCurve3"><code class="notranslate"
 							translate="no">CatmullRomCurve3</code></a>.
 				</p>
 				<p>这会得到这样的曲线</p>
@@ -596,7 +596,7 @@ cars.push(obj);
 				<p>几分钟运行的还不错</p>
 				<p>最后我想做的是开启阴影</p>
 				<p>我获取了所有
-					<a href="/docs/#api/zh/lights/DirectionalLight"><code class="notranslate"
+					<a href="/docs/#api/en/lights/DirectionalLight"><code class="notranslate"
 							translate="no">DirectionalLight</code></a>的GUI代码，
 					<a href="shadows.html">the article on shadows</a>中的阴影实例 。并粘贴到最新代码
 				</p>
