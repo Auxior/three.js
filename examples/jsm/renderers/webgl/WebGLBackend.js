@@ -41,6 +41,7 @@ class WebGLBackend extends Backend {
 		this.defaultTextures = {};
 
 		this.extensions.get( 'EXT_color_buffer_float' );
+		this._currentContext = null;
 
 	}
 
@@ -53,8 +54,12 @@ class WebGLBackend extends Backend {
 	beginRender( renderContext ) {
 
 		const { gl } = this;
+		const renderContextData = this.get( renderContext );
 
 		//
+
+		renderContextData.previousContext = this._currentContext;
+		this._currentContext = renderContext;
 
 		this._setFramebuffer( renderContext );
 
@@ -103,8 +108,6 @@ class WebGLBackend extends Backend {
 
 		if ( occlusionQueryCount > 0 ) {
 
-			const renderContextData = this.get( renderContext );
-
 			// Get a reference to the array of objects with queries. The renderContextData property
 			// can be changed by another render pass before the async reading of all previous queries complete
 			renderContextData.currentOcclusionQueries = renderContextData.occlusionQueries;
@@ -120,6 +123,29 @@ class WebGLBackend extends Backend {
 	}
 
 	finishRender( renderContext ) {
+
+		const renderContextData = this.get( renderContext );
+		const previousContext = renderContextData.previousContext;
+
+		this._currentContext = previousContext;
+
+		if ( previousContext !== null ) {
+
+			this._setFramebuffer( previousContext );
+
+			if ( previousContext.viewport ) {
+
+				this.updateViewport( previousContext );
+
+			} else {
+
+				const gl = this.gl;
+
+				gl.viewport( 0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight );
+
+			}
+
+		}
 
 		const occlusionQueryCount = renderContext.occlusionQueryCount;
 
@@ -273,7 +299,7 @@ class WebGLBackend extends Backend {
 			const bindingData = this.get( binding );
 			const index = bindingData.index;
 
-			if ( binding.isUniformsGroup ) {
+			if ( binding.isUniformsGroup || binding.isUniformBuffer ) {
 
 				gl.bindBufferBase( gl.UNIFORM_BUFFER, index, bindingData.bufferGPU );
 
@@ -496,7 +522,7 @@ class WebGLBackend extends Backend {
 
 				return source.image.data;
 
-			} else if ( source instanceof ImageBitmap || source instanceof OffscreenCanvas ) {
+			} else if ( source instanceof ImageBitmap || source instanceof OffscreenCanvas || source instanceof HTMLImageElement || source instanceof HTMLCanvasElement ) {
 
 				return source;
 
@@ -579,12 +605,6 @@ class WebGLBackend extends Backend {
 		gl.shaderSource( shader, code );
 		gl.compileShader( shader );
 
-		if ( gl.getShaderParameter( shader, gl.COMPILE_STATUS ) === false ) {
-
-			console.error( 'THREE.WebGLBackend:', gl.getShaderInfoLog( shader ) );
-
-		}
-
 		this.set( program, {
 			shaderGPU: shader
 		} );
@@ -607,13 +627,20 @@ class WebGLBackend extends Backend {
 		const { fragmentProgram, vertexProgram } = pipeline;
 
 		const programGPU = gl.createProgram();
-		gl.attachShader( programGPU, this.get( fragmentProgram ).shaderGPU );
-		gl.attachShader( programGPU, this.get( vertexProgram ).shaderGPU );
+
+		const fragmentShader = this.get( fragmentProgram ).shaderGPU;
+		const vertexShader = this.get( vertexProgram ).shaderGPU;
+
+		gl.attachShader( programGPU, fragmentShader );
+		gl.attachShader( programGPU, vertexShader );
 		gl.linkProgram( programGPU );
 
 		if ( gl.getProgramParameter( programGPU, gl.LINK_STATUS ) === false ) {
 
 			console.error( 'THREE.WebGLBackend:', gl.getProgramInfoLog( programGPU ) );
+
+			console.error( 'THREE.WebGLBackend:', gl.getShaderInfoLog( fragmentShader ) );
+			console.error( 'THREE.WebGLBackend:', gl.getShaderInfoLog( vertexShader ) );
 
 		}
 
@@ -628,7 +655,7 @@ class WebGLBackend extends Backend {
 			const bindingData = this.get( binding );
 			const index = bindingData.index;
 
-			if ( binding.isUniformsGroup ) {
+			if ( binding.isUniformsGroup || binding.isUniformBuffer ) {
 
 				const location = gl.getUniformBlockIndex( programGPU, binding.name );
 				gl.uniformBlockBinding( programGPU, location, index );
@@ -681,7 +708,15 @@ class WebGLBackend extends Backend {
 
 			}
 
-			gl.vertexAttribPointer( i, attribute.itemSize, attributeData.type, false, stride, offset );
+			if ( attributeData.isFloat ) {
+
+				gl.vertexAttribPointer( i, attribute.itemSize, attributeData.type, false, stride, offset );
+
+			} else {
+
+				gl.vertexAttribIPointer( i, attribute.itemSize, attributeData.type, stride, offset );
+
+			}
 
 			if ( attribute.isInstancedBufferAttribute && ! attribute.isInterleavedBufferAttribute ) {
 
@@ -727,7 +762,7 @@ class WebGLBackend extends Backend {
 
 		for ( const binding of bindings ) {
 
-			if ( binding.isUniformsGroup ) {
+			if ( binding.isUniformsGroup || binding.isUniformBuffer ) {
 
 				const bufferGPU = gl.createBuffer();
 				const data = binding.buffer;
@@ -761,7 +796,7 @@ class WebGLBackend extends Backend {
 
 		const gl = this.gl;
 
-		if ( binding.isUniformsGroup ) {
+		if ( binding.isUniformsGroup || binding.isUniformBuffer ) {
 
 			const bindingData = this.get( binding );
 			const bufferGPU = bindingData.bufferGPU;
@@ -822,9 +857,20 @@ class WebGLBackend extends Backend {
 
 	}
 
-	copyFramebufferToTexture( /*texture, renderContext*/ ) {
+	copyFramebufferToTexture( texture /*, renderContext */ ) {
 
-		console.warn( 'Abstract class.' );
+		const { gl } = this;
+
+		const { textureGPU } = this.get( texture );
+
+		gl.bindFramebuffer( gl.FRAMEBUFFER, null );
+		gl.bindTexture( gl.TEXTURE_2D, textureGPU );
+
+		gl.copyTexSubImage2D( gl.TEXTURE_2D, 0, 0, 0, 0, 0, texture.image.width, texture.image.height );
+
+		if ( texture.generateMipmaps ) gl.generateMipmap( gl.TEXTURE_2D );
+
+		gl.bindTexture( gl.TEXTURE_2D, null );
 
 	}
 
