@@ -100,12 +100,7 @@ class WGSLNodeBuilder extends NodeBuilder {
 
 		this.uniformGroups = {};
 
-		this.builtins = {
-			vertex: new Map(),
-			fragment: new Map(),
-			compute: new Map(),
-			attribute: new Map()
-		};
+		this.builtins = {};
 
 	}
 
@@ -133,25 +128,33 @@ class WGSLNodeBuilder extends NodeBuilder {
 
 	}
 
-	_getSampler( texture, textureProperty, uvSnippet, shaderStage = this.shaderStage ) {
+	_generateTextureSample( texture, textureProperty, uvSnippet, depthSnippet, shaderStage = this.shaderStage ) {
 
 		if ( shaderStage === 'fragment' ) {
 
-			return `textureSample( ${textureProperty}, ${textureProperty}_sampler, ${uvSnippet} )`;
+			if ( depthSnippet ) {
+
+				return `textureSample( ${ textureProperty }, ${ textureProperty }_sampler, ${ uvSnippet }, ${ depthSnippet } )`;
+
+			} else {
+
+				return `textureSample( ${ textureProperty }, ${ textureProperty }_sampler, ${ uvSnippet } )`;
+
+			}
 
 		} else {
 
-			return this.getTextureLoad( texture, textureProperty, uvSnippet );
+			return this.generateTextureLod( texture, textureProperty, uvSnippet );
 
 		}
 
 	}
 
-	_getVideoSampler( textureProperty, uvSnippet, shaderStage = this.shaderStage ) {
+	_generateVideoSample( textureProperty, uvSnippet, shaderStage = this.shaderStage ) {
 
 		if ( shaderStage === 'fragment' ) {
 
-			return `textureSampleBaseClampToEdge( ${textureProperty}, ${textureProperty}_sampler, vec2<f32>( ${uvSnippet}.x, 1.0 - ${uvSnippet}.y ) )`;
+			return `textureSampleBaseClampToEdge( ${ textureProperty }, ${ textureProperty }_sampler, vec2<f32>( ${ uvSnippet }.x, 1.0 - ${ uvSnippet }.y ) )`;
 
 		} else {
 
@@ -161,27 +164,41 @@ class WGSLNodeBuilder extends NodeBuilder {
 
 	}
 
-	_getSamplerLevel( texture, textureProperty, uvSnippet, biasSnippet, shaderStage = this.shaderStage ) {
+	_generateTextureSampleLevel( texture, textureProperty, uvSnippet, levelSnippet, depthSnippet, shaderStage = this.shaderStage ) {
 
 		if ( shaderStage === 'fragment' && this.isUnfilterable( texture ) === false ) {
 
-			return `textureSampleLevel( ${textureProperty}, ${textureProperty}_sampler, ${uvSnippet}, ${biasSnippet} )`;
+			return `textureSampleLevel( ${ textureProperty }, ${ textureProperty }_sampler, ${ uvSnippet }, ${ levelSnippet } )`;
 
 		} else {
 
-			return this.getTextureLoad( texture, textureProperty, uvSnippet, biasSnippet );
+			return this.generateTextureLod( texture, textureProperty, uvSnippet, levelSnippet );
 
 		}
 
 	}
 
-	getTextureLoad( texture, textureProperty, uvSnippet, biasSnippet = '0' ) {
+	generateTextureLod( texture, textureProperty, uvSnippet, levelSnippet = '0' ) {
 
 		this._include( 'repeatWrapping' );
 
-		const dimension = `textureDimensions( ${textureProperty}, 0 )`;
+		const dimension = `textureDimensions( ${ textureProperty }, 0 )`;
 
-		return `textureLoad( ${textureProperty}, threejs_repeatWrapping( ${uvSnippet}, ${dimension} ), i32( ${biasSnippet} ) )`;
+		return `textureLoad( ${ textureProperty }, threejs_repeatWrapping( ${ uvSnippet }, ${ dimension } ), i32( ${ levelSnippet } ) )`;
+
+	}
+
+	generateTextureLoad( texture, textureProperty, uvIndexSnippet, depthSnippet, levelSnippet = '0u' ) {
+
+		if ( depthSnippet ) {
+
+			return `textureLoad( ${ textureProperty }, ${ uvIndexSnippet }, ${ depthSnippet }, ${ levelSnippet } )`;
+
+		} else {
+
+			return `textureLoad( ${ textureProperty }, ${ uvIndexSnippet }, ${ levelSnippet } )`;
+
+		}
 
 	}
 
@@ -191,21 +208,21 @@ class WGSLNodeBuilder extends NodeBuilder {
 
 	}
 
-	getTexture( texture, textureProperty, uvSnippet, shaderStage = this.shaderStage ) {
+	generateTexture( texture, textureProperty, uvSnippet, depthSnippet, shaderStage = this.shaderStage ) {
 
 		let snippet = null;
 
 		if ( texture.isVideoTexture === true ) {
 
-			snippet = this._getVideoSampler( textureProperty, uvSnippet, shaderStage );
+			snippet = this._generateVideoSample( textureProperty, uvSnippet, shaderStage );
 
 		} else if ( this.isUnfilterable( texture ) ) {
 
-			snippet = this.getTextureLoad( texture, textureProperty, uvSnippet );
+			snippet = this.generateTextureLod( texture, textureProperty, uvSnippet, '0', depthSnippet, shaderStage );
 
 		} else {
 
-			snippet = this._getSampler( texture, textureProperty, uvSnippet, shaderStage );
+			snippet = this._generateTextureSample( texture, textureProperty, uvSnippet, depthSnippet, shaderStage );
 
 		}
 
@@ -213,11 +230,11 @@ class WGSLNodeBuilder extends NodeBuilder {
 
 	}
 
-	getTextureCompare( texture, textureProperty, uvSnippet, compareSnippet, shaderStage = this.shaderStage ) {
+	generateTextureCompare( texture, textureProperty, uvSnippet, compareSnippet, depthSnippet, shaderStage = this.shaderStage ) {
 
 		if ( shaderStage === 'fragment' ) {
 
-			return `textureSampleCompare( ${textureProperty}, ${textureProperty}_sampler, ${uvSnippet}, ${compareSnippet} )`;
+			return `textureSampleCompare( ${ textureProperty }, ${ textureProperty }_sampler, ${ uvSnippet }, ${ compareSnippet } )`;
 
 		} else {
 
@@ -227,17 +244,17 @@ class WGSLNodeBuilder extends NodeBuilder {
 
 	}
 
-	getTextureLevel( texture, textureProperty, uvSnippet, biasSnippet, shaderStage = this.shaderStage ) {
+	generateTextureLevel( texture, textureProperty, uvSnippet, levelSnippet, depthSnippet, shaderStage = this.shaderStage ) {
 
 		let snippet = null;
 
 		if ( texture.isVideoTexture === true ) {
 
-			snippet = this._getVideoSampler( textureProperty, uvSnippet, shaderStage );
+			snippet = this._generateVideoSample( textureProperty, uvSnippet, shaderStage );
 
 		} else {
 
-			snippet = this._getSamplerLevel( texture, textureProperty, uvSnippet, biasSnippet, shaderStage );
+			snippet = this._generateTextureSampleLevel( texture, textureProperty, uvSnippet, levelSnippet, depthSnippet, shaderStage );
 
 		}
 
@@ -251,7 +268,7 @@ class WGSLNodeBuilder extends NodeBuilder {
 
 			if ( shaderStage === 'vertex' ) {
 
-				return `NodeVaryings.${ node.name }`;
+				return `varyings.${ node.name }`;
 
 			}
 
@@ -411,7 +428,7 @@ class WGSLNodeBuilder extends NodeBuilder {
 
 	getBuiltin( name, property, type, shaderStage = this.shaderStage ) {
 
-		const map = this.builtins[ shaderStage ];
+		const map = this.builtins[ shaderStage ] || ( this.builtins[ shaderStage ] = new Map() );
 
 		if ( map.has( name ) === false ) {
 
@@ -487,13 +504,38 @@ ${ flowData.code }
 
 	getFragCoord() {
 
-		return this.getBuiltin( 'position', 'fragCoord', 'vec4<f32>', 'fragment' ) + '.xy';
+		return this.getBuiltin( 'position', 'fragCoord', 'vec4<f32>' ) + '.xy';
+
+	}
+
+	getFragDepth() {
+
+		return 'output.' + this.getBuiltin( 'frag_depth', 'depth', 'f32', 'output' );
 
 	}
 
 	isFlipY() {
 
 		return false;
+
+	}
+
+	getBuiltins( shaderStage ) {
+
+		const snippets = [];
+		const builtins = this.builtins[ shaderStage ];
+
+		if ( builtins !== undefined ) {
+
+			for ( const { name, property, type } of builtins.values() ) {
+
+				snippets.push( `@builtin( ${name} ) ${property} : ${type}` );
+
+			}
+
+		}
+
+		return snippets.join( ',\n\t' );
 
 	}
 
@@ -509,11 +551,9 @@ ${ flowData.code }
 
 		if ( shaderStage === 'vertex' || shaderStage === 'compute' ) {
 
-			for ( const { name, property, type } of this.builtins.attribute.values() ) {
+			const builtins = this.getBuiltins( 'attribute' );
 
-				snippets.push( `@builtin( ${name} ) ${property} : ${type}` );
-
-			}
+			if ( builtins ) snippets.push( builtins );
 
 			const attributes = this.getAttributesArray();
 
@@ -638,15 +678,13 @@ ${ flowData.code }
 
 		}
 
-		for ( const { name, property, type } of this.builtins[ shaderStage ].values() ) {
+		const builtins = this.getBuiltins( shaderStage );
 
-			snippets.push( `@builtin( ${name} ) ${property} : ${type}` );
-
-		}
+		if ( builtins ) snippets.push( builtins );
 
 		const code = snippets.join( ',\n\t' );
 
-		return shaderStage === 'vertex' ? this._getWGSLStruct( 'NodeVaryingsStruct', '\t' + code ) : code;
+		return shaderStage === 'vertex' ? this._getWGSLStruct( 'VaryingsStruct', '\t' + code ) : code;
 
 	}
 
@@ -686,6 +724,10 @@ ${ flowData.code }
 				if ( texture.isCubeTexture === true ) {
 
 					textureType = 'texture_cube<f32>';
+
+				} else if ( texture.isDataArrayTexture === true ) {
+
+					textureType = 'texture_2d_array<f32>';
 
 				} else if ( texture.isDepthTexture === true ) {
 
@@ -769,11 +811,24 @@ ${ flowData.code }
 
 		for ( const shaderStage in shadersData ) {
 
+			const stageData = shadersData[ shaderStage ];
+			stageData.uniforms = this.getUniforms( shaderStage );
+			stageData.attributes = this.getAttributes( shaderStage );
+			stageData.varyings = this.getVaryings( shaderStage );
+			stageData.structs = this.getStructs( shaderStage );
+			stageData.vars = this.getVars( shaderStage );
+			stageData.codes = this.getCodes( shaderStage );
+
+			//
+
 			let flow = '// code\n\n';
 			flow += this.flowCode[ shaderStage ];
 
 			const flowNodes = this.flowNodes[ shaderStage ];
 			const mainNode = flowNodes[ flowNodes.length - 1 ];
+
+			const outputNode = mainNode.outputNode;
+			const isOutputStruct = ( outputNode !== undefined && outputNode.isOutputStructNode === true );
 
 			for ( const node of flowNodes ) {
 
@@ -792,34 +847,42 @@ ${ flowData.code }
 
 				if ( node === mainNode && shaderStage !== 'compute' ) {
 
-					flow += '// result\n\t';
+					flow += '// result\n\n\t';
 
 					if ( shaderStage === 'vertex' ) {
 
-						flow += 'NodeVaryings.Vertex = ';
+						flow += `varyings.Vertex = ${ flowSlotData.result };`;
 
 					} else if ( shaderStage === 'fragment' ) {
 
-						flow += 'return ';
+						if ( isOutputStruct ) {
+
+							stageData.returnType = outputNode.nodeType;
+
+							flow += `return ${ flowSlotData.result };`;
+
+						} else {
+
+							let structSnippet = '\t@location(0) color: vec4<f32>';
+
+							const builtins = this.getBuiltins( 'output' );
+
+							if ( builtins ) structSnippet += ',\n\t' + builtins;
+
+							stageData.returnType = 'OutputStruct';
+							stageData.structs += this._getWGSLStruct( 'OutputStruct', structSnippet );
+							stageData.structs += '\nvar<private> output : OutputStruct;\n\n';
+
+							flow += `output.color = ${ flowSlotData.result };\n\n\treturn output;`;
+
+						}
 
 					}
-
-					flow += `${ flowSlotData.result };`;
 
 				}
 
 			}
 
-			const outputNode = mainNode.outputNode;
-			const stageData = shadersData[ shaderStage ];
-
-			stageData.uniforms = this.getUniforms( shaderStage );
-			stageData.attributes = this.getAttributes( shaderStage );
-			stageData.varyings = this.getVaryings( shaderStage );
-			stageData.structs = this.getStructs( shaderStage );
-			stageData.vars = this.getVars( shaderStage );
-			stageData.codes = this.getCodes( shaderStage );
-			stageData.returnType = ( outputNode !== undefined && outputNode.isOutputStructNode === true ) ? outputNode.nodeType : '@location( 0 ) vec4<f32>';
 			stageData.flow = flow;
 
 		}
@@ -876,15 +939,13 @@ ${shaderData.uniforms}
 
 // varyings
 ${shaderData.varyings}
+var<private> varyings : VaryingsStruct;
 
 // codes
 ${shaderData.codes}
 
 @vertex
-fn main( ${shaderData.attributes} ) -> NodeVaryingsStruct {
-
-	// system
-	var NodeVaryings: NodeVaryingsStruct;
+fn main( ${shaderData.attributes} ) -> VaryingsStruct {
 
 	// vars
 	${shaderData.vars}
@@ -892,7 +953,7 @@ fn main( ${shaderData.attributes} ) -> NodeVaryingsStruct {
 	// flow
 	${shaderData.flow}
 
-	return NodeVaryings;
+	return varyings;
 
 }
 `;
