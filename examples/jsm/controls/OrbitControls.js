@@ -373,10 +373,15 @@ class OrbitControls extends EventDispatcher {
 					}
 
 				} else if ( scope.object.isOrthographicCamera ) {
+					
+					zoomChanged = scale !== 1;
 
-					scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / scale ) );
-					scope.object.updateProjectionMatrix();
-					zoomChanged = true;
+					if ( zoomChanged ) {
+
+						scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / scale ) );
+						scope.object.updateProjectionMatrix();
+						
+					}
 
 				}
 
@@ -1052,6 +1057,16 @@ class OrbitControls extends EventDispatcher {
 			scope.dispatchEvent( _endEvent );
 
 			state = STATE.NONE;
+
+			if ( pointers.length == 1 ) {
+
+				const pointerId = pointers[ 0 ];
+				const position = pointerPositions[ pointerId ];
+
+				// minimal placeholder event - allows state correction on pointer-up
+				onTouchStart( { pointerId: pointerId, pageX: position.x, pageY: position.y } );
+
+			}
 
 		}
 
