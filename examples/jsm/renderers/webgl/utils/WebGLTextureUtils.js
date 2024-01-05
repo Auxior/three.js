@@ -184,7 +184,12 @@ class WebGLTextureUtils {
 		}
 
 		gl.texParameteri( textureType, gl.TEXTURE_MAG_FILTER, filterToGL[ texture.magFilter ] );
-		gl.texParameteri( textureType, gl.TEXTURE_MIN_FILTER, filterToGL[ texture.minFilter ] );
+
+
+		// follow WebGPU backend mapping for texture filtering
+		const minFilter = texture.minFilter === LinearFilter ? LinearMipmapLinearFilter : texture.minFilter;
+
+		gl.texParameteri( textureType, gl.TEXTURE_MIN_FILTER, filterToGL[ minFilter ] );
 
 		if ( texture.compareFunction ) {
 
@@ -398,7 +403,7 @@ class WebGLTextureUtils {
 		const { gl, backend } = this;
 		const { textureGPU, glTextureType } = backend.get( texture );
 
-		gl.bindTexture( glTextureType, textureGPU );
+		backend.state.bindTexture( glTextureType, textureGPU );
 		gl.generateMipmap( glTextureType );
 
 	}
