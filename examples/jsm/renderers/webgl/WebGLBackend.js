@@ -47,6 +47,7 @@ class WebGLBackend extends Backend {
 		this.discard = false;
 
 		this.extensions.get( 'EXT_color_buffer_float' );
+		this.parallel = this.extensions.get( 'KHR_parallel_shader_compile' );
 		this._currentContext = null;
 
 	}
@@ -93,6 +94,14 @@ class WebGLBackend extends Backend {
 		} else {
 
 			gl.viewport( 0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight );
+
+		}
+
+		if ( renderContext.scissor ) {
+
+			const { x, y, width, height } = renderContext.scissorValue;
+
+			gl.scissor( x, y, width, height );
 
 		}
 
@@ -288,6 +297,22 @@ class WebGLBackend extends Backend {
 
 	}
 
+	setScissorTest( boolean ) {
+
+		const gl = this.gl;
+
+		if ( boolean ) {
+
+			gl.enable( gl.SCISSOR_TEST );
+
+		} else {
+
+			gl.disable( gl.SCISSOR_TEST );
+
+		}
+
+	}
+
 	clear( color, depth, stencil, descriptor = null ) {
 
 		const { gl } = this;
@@ -364,18 +389,19 @@ class WebGLBackend extends Backend {
 
 		const gl = this.gl;
 
-		if ( ! this.discard )  {
+		if ( ! this.discard ) {
 
 			// required here to handle async behaviour of render.compute()
 			gl.enable( gl.RASTERIZER_DISCARD );
 			this.discard = true;
+
 		}
 
 		const { programGPU, transformBuffers, attributes } = this.get( pipeline );
 
 		const vaoKey = this._getVaoKey( null, attributes );
 
-		let vaoGPU = this.vaoCache[ vaoKey ];
+		const vaoGPU = this.vaoCache[ vaoKey ];
 
 		if ( vaoGPU === undefined ) {
 
@@ -660,7 +686,7 @@ class WebGLBackend extends Backend {
 
 	}
 
-	createRenderPipeline( renderObject ) {
+	createRenderPipeline( renderObject, promises ) {
 
 		const gl = this.gl;
 		const pipeline = renderObject.pipeline;
@@ -677,6 +703,52 @@ class WebGLBackend extends Backend {
 		gl.attachShader( programGPU, fragmentShader );
 		gl.attachShader( programGPU, vertexShader );
 		gl.linkProgram( programGPU );
+
+		this.set( pipeline, {
+			programGPU,
+			fragmentShader,
+			vertexShader
+		} );
+
+		if ( promises !== null && this.parallel ) {
+
+			const p = new Promise( ( resolve /*, reject*/ ) => {
+
+				const parallel = this.parallel;
+				const checkStatus = () => {
+
+					if ( gl.getProgramParameter( programGPU, parallel.COMPLETION_STATUS_KHR ) ) {
+
+						this._completeCompile( renderObject, pipeline );
+						resolve();
+
+					} else {
+
+						requestAnimationFrame( checkStatus );
+
+					}
+
+				};
+
+				checkStatus();
+
+			} );
+
+			promises.push( p );
+
+			return;
+
+		}
+
+		this._completeCompile( renderObject, pipeline );
+
+	}
+
+	_completeCompile( renderObject, pipeline ) {
+
+		const gl = this.gl;
+		const pipelineData = this.get( pipeline );
+		const { programGPU, fragmentShader, vertexShader } = pipelineData;
 
 		if ( gl.getProgramParameter( programGPU, gl.LINK_STATUS ) === false ) {
 
@@ -709,7 +781,7 @@ class WebGLBackend extends Backend {
 
 		const fragmentProgram = {
 			stage: 'fragment',
-			code: "#version 300 es\nprecision highp float;\nvoid main() {}"
+			code: '#version 300 es\nprecision highp float;\nvoid main() {}'
 		};
 
 		this.createProgram( fragmentProgram );

@@ -551,7 +551,7 @@ class WebGPUBackend extends Backend {
 
 			for ( let i = 0; i < currentOcclusionQueryObjects.length; i ++ ) {
 
-				if ( results[ i ] !== 0 ) {
+				if ( results[ i ] !== 0n ) {
 
 					occluded.add( currentOcclusionQueryObjects[ i ] );
 
@@ -1140,9 +1140,9 @@ class WebGPUBackend extends Backend {
 
 	// pipelines
 
-	createRenderPipeline( renderObject ) {
+	createRenderPipeline( renderObject, promises ) {
 
-		this.pipelineUtils.createRenderPipeline( renderObject );
+		this.pipelineUtils.createRenderPipeline( renderObject, promises );
 
 	}
 
