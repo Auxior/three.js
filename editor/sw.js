@@ -77,7 +77,6 @@ const assets = [
 
 	'../examples/jsm/utils/BufferGeometryUtils.js',
 
-	'../examples/jsm/webxr/VRButton.js',
 	'../examples/jsm/webxr/XRControllerModelFactory.js',
 
 	'./images/rotate.svg',
@@ -138,7 +137,6 @@ const assets = [
 	'./js/Menubar.File.js',
 	'./js/Menubar.Edit.js',
 	'./js/Menubar.Add.js',
-	'./js/Menubar.Play.js',
 	'./js/Menubar.Examples.js',
 	'./js/Menubar.Help.js',
 	'./js/Menubar.View.js',
@@ -147,8 +145,9 @@ const assets = [
 	'./js/Sidebar.js',
 	'./js/Sidebar.Scene.js',
 	'./js/Sidebar.Project.js',
-	'./js/Sidebar.Project.Materials.js',
 	'./js/Sidebar.Project.Renderer.js',
+	'./js/Sidebar.Project.Materials.js',
+	'./js/Sidebar.Project.App.js',
 	'./js/Sidebar.Project.Video.js',
 	'./js/Sidebar.Settings.js',
 	'./js/Sidebar.Settings.History.js',
@@ -191,7 +190,7 @@ const assets = [
 	'./js/Viewport.Info.js',
 	'./js/Viewport.Selector.js',
 	'./js/Viewport.ViewHelper.js',
-	'./js/Viewport.VR.js',
+	'./js/Viewport.XR.js',
 
 	'./js/Command.js',
 	'./js/commands/AddObjectCommand.js',
