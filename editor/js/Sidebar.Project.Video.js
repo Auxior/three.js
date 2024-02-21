@@ -19,7 +19,7 @@ function SidebarProjectVideo( editor ) {
 	const resolutionRow = new UIRow();
 	container.add( resolutionRow );
 
-	resolutionRow.add( new UIText( strings.getKey( 'sidebar/project/resolution' ) ).setWidth( '90px' ) );
+	resolutionRow.add( new UIText( strings.getKey( 'sidebar/project/resolution' ) ).setClass( 'Label' ) );
 
 	const videoWidth = new UIInteger( 1024 ).setTextAlign( 'center' ).setWidth( '28px' );
 	resolutionRow.add( videoWidth );
@@ -37,7 +37,7 @@ function SidebarProjectVideo( editor ) {
 	// Duration
 
 	const videoDurationRow = new UIRow();
-	videoDurationRow.add( new UIText( strings.getKey( 'sidebar/project/duration' ) ).setWidth( '90px' ) );
+	videoDurationRow.add( new UIText( strings.getKey( 'sidebar/project/duration' ) ).setClass( 'Label' ) );
 
 	const videoDuration = new UIInteger( 10 );
 	videoDurationRow.add( videoDuration );
@@ -48,7 +48,7 @@ function SidebarProjectVideo( editor ) {
 
 	const renderButton = new UIButton( strings.getKey( 'sidebar/project/render' ) );
 	renderButton.setWidth( '170px' );
-	renderButton.setMarginLeft( '90px' );
+	renderButton.setMarginLeft( '120px' );
 	renderButton.onClick( async () => {
 
 		const player = new APP.Player();
@@ -69,6 +69,12 @@ function SidebarProjectVideo( editor ) {
 		const top = ( screen.height - height ) / 2;
 
 		const output = window.open( '', '_blank', `location=no,left=${left},top=${top},width=${width},height=${height}` );
+
+		const meta = document.createElement( 'meta' );
+		meta.name = 'viewport';
+		meta.content = 'width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0';
+		output.document.head.appendChild( meta );
+
 		output.document.body.style.background = '#000';
 		output.document.body.style.margin = '0px';
 		output.document.body.style.overflow = 'hidden';
